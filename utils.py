@@ -4,8 +4,10 @@ from langchain.embeddings import SentenceTransformerEmbeddings
 import openai
 import streamlit as st
 
-# Setting OpenAI API key
-openai.api_key = "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"
+# Setting OpenAI API key from environment variable
+openai_api_key = os.environ.get("OPENAI_API_KEY")
+if not openai_api_key:
+    raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
 
 # Set Pinecone API key from environment variable
 pinecone_api_key = os.environ.get("PINECONE_API_KEY")
