@@ -1,17 +1,46 @@
-from sentence_transformers import SentenceTransformer
-import pinecone
+import os
+from pinecone import Pinecone, ServerlessSpec
+from langchain.embeddings import SentenceTransformerEmbeddings
 import openai
 import streamlit as st
+
+# Setting OpenAI API key
 openai.api_key = "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"
-model = SentenceTransformer('all-MiniLM-L6-v2')
 
-pinecone.init(api_key='712870f9-7dc9-4010-93c8-aeac3d73b3af', environment='us-central-1-aws')
-index = pinecone.Index('langchain')
+# Set Pinecone API key from environment variable
+pinecone_api_key = os.environ.get("PINECONE_API_KEY")
+if not pinecone_api_key:
+    raise ValueError("Pinecone API key not found. Please set the PINECONE_API_KEY environment variable.")
 
+# Initialize Pinecone
+pc = Pinecone(api_key=pinecone_api_key)
+
+index_name = 'langchain'
+
+# Create index if it doesn't exist
+if index_name not in pc.list_indexes().names():
+    pc.create_index(
+        name=index_name, 
+        dimension=1536, 
+        metric='euclidean',
+        spec=ServerlessSpec(
+            cloud='aws',
+            region='us-west-2'
+        )
+    )
+
+# Connect to the index
+index = pc.Index(name=index_name)
+
+# Initialize the embeddings model
+embeddings_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+
+# Define your functions
 def find_match(input):
-    input_em = model.encode(input).tolist()
+    # Generate embeddings for the input
+    input_em = embeddings_model.embed_documents([input])[0]
     result = index.query(input_em, top_k=2, includeMetadata=True)
-    return result['matches'][0]['metadata']['text']+"\n"+result['matches'][1]['metadata']['text']
+    return result['matches'][0]['metadata']['text'] + "\n" + result['matches'][1]['metadata']['text']
 
 def query_refiner(conversation, query):
 
