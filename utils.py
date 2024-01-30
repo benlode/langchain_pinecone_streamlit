@@ -2,11 +2,11 @@ from sentence_transformers import SentenceTransformer
 import pinecone
 import openai
 import streamlit as st
-openai.api_key = ""
+openai.api_key = "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"
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
-pinecone.init(api_key='', environment='us-east-1-aws')
-index = pinecone.Index('langchain-chatbot')
+pinecone.init(api_key='712870f9-7dc9-4010-93c8-aeac3d73b3af', environment='us-central-1-aws')
+index = pinecone.Index('langchain')
 
 def find_match(input):
     input_em = model.encode(input).tolist()
