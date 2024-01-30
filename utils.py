@@ -4,15 +4,11 @@ from langchain.embeddings import SentenceTransformerEmbeddings
 import openai
 import streamlit as st
 
-# Setting OpenAI API key from environment variable
-openai_api_key = os.environ.get("OPENAI_API_KEY")
-if not openai_api_key:
-    raise ValueError("OpenAI API key not found. Please set the OPENAI_API_KEY environment variable.")
+# Setting OpenAI API key from streamlit secret
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
-# Set Pinecone API key from environment variable
-pinecone_api_key = os.environ.get("PINECONE_API_KEY")
-if not pinecone_api_key:
-    raise ValueError("Pinecone API key not found. Please set the PINECONE_API_KEY environment variable.")
+# Set Pinecone API key from streamlit secret
+pinecone_api_key = st.secrets["PINECONE_API_KEY"]
 
 # Initialize Pinecone
 pc = Pinecone(api_key=pinecone_api_key)
